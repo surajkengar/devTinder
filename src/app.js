@@ -1,56 +1,49 @@
-const express = require('express');
-
+const express = require("express");
+const connectDB = require("./config/database");
 const app = express();
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const http = require("http");
+const {userAuth}=require("./middleware/auth");
 
-app.use("/test", (req,res)=>{
-    res.send("test test test");
-})
+require("dotenv").config();
 
-app.get(/a/ , (req,res) =>{
-    res.send("get method used");
-})
+require("./utils/cronjob");
 
-app.get(/.*fly$/, (req,res)=>{
-    res.send("get method used second time");
-})
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+app.use(express.json());
+app.use(cookieParser());
 
-app.post("/user1",(req,res)=>{
-    res.send("post method used ");
-})
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
+const userRouter = require("./routes/user");
+// const paymentRouter = require("./routes/payment");
+const initializeSocket = require("./utils/socket");
+// const chatRouter = require("./routes/chat");
 
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
+app.use("/", userRouter);
+// app.use("/", paymentRouter);
+// app.use("/", chatRouter);
 
-app.delete("/user2",(req,res)=>{
-    res.send("delete method used");
-})
+const server = http.createServer(app);
+initializeSocket(server);
 
-app.patch("/user3",(req,res)=>{
-    res.send("patch method is used");
-})
-
-app.put("/user4",(req,res)=>{
-    res.send("put method is used");
-})
-// app.use("/test",(req,res)=>{
-//     res.send("test is done successfully");
-// })
-
-
-
-// app.use("/index",(req,res)=>{
-//     res.send("go to index page");
-// })
-// app.use("/home" , (req,res)=>{
-//     res.send("go to home page");
-// })
-// app.use("/read",(req,res)=>{
-//     res.send("read the all docunment succcessfully");
-// })
-// app.use("/",(req,res)=>{
-//     res.send("hello hello hello");
-// })
-// app.use((req,res)=>{
-//     res.send("server is started successfully");
-// })
-app.listen(3000,()=>{
-    console.log("server starred successfully");
-} );
+connectDB()
+  .then(() => {
+    console.log("Database connection established...");
+    server.listen(process.env.PORT, () => {
+      console.log("Server is successfully listening on port 7777...");
+    });
+  })
+  .catch((err) => {
+    console.error("Database cannot be connected!!");
+  });
