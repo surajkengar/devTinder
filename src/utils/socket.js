@@ -9,7 +9,6 @@ const getSecretRoomId = (userId, targetUserId) => {
     .update([userId, targetUserId].sort().join("$"))
     .digest("hex");
 };
-
 const initializeSocket = (server) => {
   const io = socket(server, {
     cors: {
