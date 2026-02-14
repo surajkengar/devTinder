@@ -12,13 +12,19 @@ console.log("MONGO_URI =", process.env.MONGO_URI);
 
 
 // require("./utils/cronjob");
-
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://dev-tinder-frontend-taupe-tau.vercel.app"
+    ],
     credentials: true,
   })
 );
+
+
+
+
 app.use(express.json());
 app.use(cookieParser());
 
